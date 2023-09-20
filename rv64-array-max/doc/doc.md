@@ -58,3 +58,17 @@ If you follow the hint given above, you would proceed like this:
     *   element 6 is 13, so keep 44 as the largest element so far
     *   element 7 is 44, so keep 44 as the largest element so far
 *   Return 44, which was the largest element found
+
+Pseudo-code for this would look something like this:
+
+```
+def array_max(array, count):
+    max = array[0]
+    i = 1
+    while i < count:
+        elt = array[i]
+        if elt > max:
+            max = elt
+        i += 1
+    return max
+```
