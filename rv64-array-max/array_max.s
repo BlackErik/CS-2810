@@ -15,12 +15,14 @@ array_max:
 	ld t1, (a0)
 1:	bge a2, a1, 2f
 	ld t2, (a0)	
-	bgt t2, t1, 3f
-	addi a0, a0, 8
-	addi a2, a2, 1
+	ble t2, t1, 3f
+	mv t1, t2
 	j 1b
+
 2:	mv a0, t1
 	ret
 
-3:	mv t1, t2
+
+3: 	addi a0,a0,8
+	addi a2,a2,1
 	j 1b
