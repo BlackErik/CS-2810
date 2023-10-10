@@ -3,13 +3,15 @@
 
                 .data
 newline:        .asciz  "\n"
-intro_msg:      .asciz  "Testing get_used with the following board:\n\n"
-test_row_msg:   .asciz  "\nTesting get_used on row "
-test_col_msg:   .asciz  "\nTesting get_used on column "
-test_box_msg:   .asciz  "\nTesting get_used on 3x3 box "
-return_val_msg: .asciz  "Return value: "
+intro_msg:      .asciz  "Testing clear_used with the following board:\n\n"
+test_row_msg:   .asciz  "\nTesting clear_used on row "
+test_col_msg:   .asciz  "\nTesting clear_used on column "
+test_box_msg:   .asciz  "\nTesting clear_used on 3x3 box "
+get_used_msg:   .asciz  "Calling clear_used with the value returned by get_used: "
+return_val_msg: .asciz  "Return value from clear_used: "
 the_set_msg_1:  .asciz  " (the set "
 the_set_msg_2:  .asciz  ")\n"
+new_board_msg:  .asciz "After clear_used returned the board is now:\n\n"
 
                 .text
 _start:
@@ -76,16 +78,15 @@ _start:
 5:              la      a0, newline
                 call    puts
 
-                # make the call
+                # call get_used
                 mv      a0, s0
                 li      t0, 9
                 mul     t1, s2, t0
                 add     a1, s1, t1
-                la      a4, get_used
-                call    call_function
+                call    get_used
                 mv      s3, a0
 
-                la      a0, return_val_msg
+                la      a0, get_used_msg
                 call    puts
                 mv      a0, s3
                 call    print_n
@@ -95,6 +96,29 @@ _start:
                 call    print_set
                 la      a0, the_set_msg_2
                 call    puts
+
+                # call clear_used
+                mv      a0, s0
+                li      t0, 9
+                mul     t1, s2, t0
+                add     a1, s1, t1
+                mv      a2, s3
+                la      a4, clear_used
+                call    call_function
+                mv      s3, a0
+
+                la      a0, return_val_msg
+                call    puts
+                mv      a0, s3
+                call    print_n
+                la      a0, newline
+                call    puts
+
+                # print the updated board
+                la      a0, new_board_msg
+                call    puts
+                mv      a0, s0
+                call    print_board
 
                 # next i
                 addi    s2, s2, 11
