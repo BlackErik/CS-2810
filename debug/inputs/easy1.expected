@@ -1,0 +1,121 @@
+Please enter an 81-character board:
+Testing get_used with the following board:
+
++-----------------------+-----------------------+-----------------------+
+| 1 2 3 |       | 1 2 3 | 1 2 3 |       | 1 2 3 | 1 2 3 | 1 2 3 | 1 2 3 |
+| 4 5 6     2     4 5 6 | 4 5 6     4     4 5 6 | 4 5 6   4 5 6   4 5 6 |
+| 7 8 9 |       | 7 8 9 | 7 8 9 |       | 7 8 9 | 7 8 9 | 7 8 9 | 7 8 9 |
+| - - - + - - - + - - - | - - - + - - - + - - - | - - - + - - - + - - - |
+| 1 2 3 | 1 2 3 | 1 2 3 |       | 1 2 3 |       |       | 1 2 3 |       |
+| 4 5 6   4 5 6   4 5 6 |   1     4 5 6     2   |   6     4 5 6     7   |
+| 7 8 9 | 7 8 9 | 7 8 9 |       | 7 8 9 |       |       | 7 8 9 |       |
+| - - - + - - - + - - - | - - - + - - - + - - - | - - - + - - - + - - - |
+|       |       | 1 2 3 | 1 2 3 |       |       | 1 2 3 | 1 2 3 |       |
+|   7       9     4 5 6 | 4 5 6     6       8   | 4 5 6   4 5 6     5   |
+|       |       | 7 8 9 | 7 8 9 |       |       | 7 8 9 | 7 8 9 |       |
++-----------------------+-----------------------+-----------------------+
+|       |       | 1 2 3 | 1 2 3 |       |       | 1 2 3 | 1 2 3 | 1 2 3 |
+|   8       4     4 5 6 | 4 5 6     2       9   | 4 5 6   4 5 6   4 5 6 |
+|       |       | 7 8 9 | 7 8 9 |       |       | 7 8 9 | 7 8 9 | 7 8 9 |
+| - - - + - - - + - - - | - - - + - - - + - - - | - - - + - - - + - - - |
+| 1 2 3 |       |       | 1 2 3 | 1 2 3 |       | 1 2 3 |       |       |
+| 4 5 6     6       1   | 4 5 6   4 5 6     3   | 4 5 6     9       4   |
+| 7 8 9 |       |       | 7 8 9 | 7 8 9 |       | 7 8 9 |       |       |
+| - - - + - - - + - - - | - - - + - - - + - - - | - - - + - - - + - - - |
+|       | 1 2 3 |       |       | 1 2 3 | 1 2 3 | 1 2 3 | 1 2 3 |       |
+|   9     4 5 6     2   |   4     4 5 6   4 5 6 | 4 5 6   4 5 6     3   |
+|       | 7 8 9 |       |       | 7 8 9 | 7 8 9 | 7 8 9 | 7 8 9 |       |
++-----------------------+-----------------------+-----------------------+
+| 1 2 3 | 1 2 3 |       | 1 2 3 | 1 2 3 |       |       |       |       |
+| 4 5 6   4 5 6     5   | 4 5 6   4 5 6     1   |   9       7       6   |
+| 7 8 9 | 7 8 9 |       | 7 8 9 | 7 8 9 |       |       |       |       |
+| - - - + - - - + - - - | - - - + - - - + - - - | - - - + - - - + - - - |
+| 1 2 3 |       | 1 2 3 | 1 2 3 | 1 2 3 | 1 2 3 |       | 1 2 3 | 1 2 3 |
+| 4 5 6     1     4 5 6 | 4 5 6   4 5 6   4 5 6 |   4     4 5 6   4 5 6 |
+| 7 8 9 |       | 7 8 9 | 7 8 9 | 7 8 9 | 7 8 9 |       | 7 8 9 | 7 8 9 |
+| - - - + - - - + - - - | - - - + - - - + - - - | - - - + - - - + - - - |
+|       |       |       | 1 2 3 | 1 2 3 | 1 2 3 | 1 2 3 | 1 2 3 |       |
+|   6       8       9   | 4 5 6   4 5 6   4 5 6 | 4 5 6   4 5 6     2   |
+|       |       |       | 7 8 9 | 7 8 9 | 7 8 9 | 7 8 9 | 7 8 9 |       |
++-----------------------+-----------------------+-----------------------+
+
+Testing get_used on row 0
+Return value: 20 (the set 42)
+
+Testing get_used on column 2
+Return value: 550 (the set 9521)
+
+Testing get_used on 3x3 box 4
+Return value: 540 (the set 9432)
+
+Testing get_used on row 6
+Return value: 738 (the set 97651)
+
+Testing get_used on column 8
+Return value: 252 (the set 765432)
+
+Testing get_used on row 1
+Return value: 198 (the set 7621)
+
+Testing get_used on column 3
+Return value: 18 (the set 41)
+
+Testing get_used on 3x3 box 5
+Return value: 536 (the set 943)
+
+Testing get_used on row 7
+Return value: 18 (the set 41)
+
+Testing get_used on 3x3 box 0
+Return value: 644 (the set 972)
+
+Testing get_used on row 2
+Return value: 992 (the set 98765)
+
+Testing get_used on column 4
+Return value: 84 (the set 642)
+
+Testing get_used on 3x3 box 6
+Return value: 866 (the set 98651)
+
+Testing get_used on row 8
+Return value: 836 (the set 9862)
+
+Testing get_used on 3x3 box 1
+Return value: 342 (the set 86421)
+
+Testing get_used on row 3
+Return value: 788 (the set 9842)
+
+Testing get_used on column 5
+Return value: 782 (the set 98321)
+
+Testing get_used on 3x3 box 7
+Return value: 2 (the set 1)
+
+Testing get_used on column 0
+Return value: 960 (the set 9876)
+
+Testing get_used on 3x3 box 2
+Return value: 224 (the set 765)
+
+Testing get_used on row 4
+Return value: 602 (the set 96431)
+
+Testing get_used on column 6
+Return value: 592 (the set 964)
+
+Testing get_used on 3x3 box 8
+Return value: 724 (the set 97642)
+
+Testing get_used on column 1
+Return value: 854 (the set 986421)
+
+Testing get_used on 3x3 box 3
+Return value: 854 (the set 986421)
+
+Testing get_used on row 5
+Return value: 540 (the set 9432)
+
+Testing get_used on column 7
+Return value: 640 (the set 97)
