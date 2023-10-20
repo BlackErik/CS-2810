@@ -2,16 +2,15 @@
                 .equ    sys_exit, 93
 
                 .data
-newline:        .asciz  "\n"
-intro_msg:      .asciz  "Testing clear_used with the following board:\n\n"
-test_row_msg:   .asciz  "\nTesting clear_used on row "
-test_col_msg:   .asciz  "\nTesting clear_used on column "
-test_box_msg:   .asciz  "\nTesting clear_used on 3x3 box "
-get_used_msg:   .asciz  "Calling clear_used with the value returned by get_used: "
-return_val_msg: .asciz  "Return value from clear_used: "
+msg_pencil:     .asciz  "\nBoard with up-to-date pencil marks:\n"
+test_row_msg:   .asciz  "\nTesting gather_set on row "
+test_col_msg:   .asciz  "\nTesting gather_set on column "
+test_group_msg: .asciz  "\nTesting gather_set on 3x3 group "
+test_key_msg:   .asciz  "Testing with key "
 the_set_msg_1:  .asciz  " (the set "
 the_set_msg_2:  .asciz  ")\n"
-new_board_msg:  .asciz "After clear_used returned the board is now:\n\n"
+newline:        .asciz  "\n"
+return_val_msg: .asciz  "Return value from gather_set is "
 
                 .text
 _start:
@@ -22,8 +21,6 @@ _start:
 
                 # s0: board
                 # s1: table
-                # s2: i
-                # s3: result value
 
                 # reserve stack space for a board
                 # 81*2 = 162 so reserve 176
@@ -44,49 +41,49 @@ _start:
                 mv      a0, s1
                 call    make_group_table
 
-                # start by printing the test board
-                la      a0, intro_msg
+                # call pencil_marks
+2:              mv      a0, s0
+                mv      a1, s1
+                call    pencil_marks
+
+                # keep repeating until no changes made
+                bnez    a0, 2b
+
+                # print the board
+                la      a0, msg_pencil
                 call    puts
                 mv      a0, s0
                 call    print_board
 
-                # for i from [0, 27) step 11 mod 27
+                # s2: group_i
+                # s3: key
                 li      s2, 0
+                li      s3, 1
 
-                # 0-8 means a row
-2:              li      t0, 9
-                bge     s2, t0, 3f
+3:              li      t0, 9
+                bge     s2, t0, 4f
                 la      a0, test_row_msg
                 call    puts
                 mv      a0, s2
                 call    print_n
-                j       5f
+                j       6f
 
-3:              li      t0, 18
-                bge     s2, t0, 4f
+4:              li      t0, 18
+                bge     s2, t0, 5f
                 la      a0, test_col_msg
                 call    puts
                 addi    a0, s2, -9
                 call    print_n
-                j       5f
+                j       6f
 
-4:              la      a0, test_box_msg
+5:              la      a0, test_group_msg
                 call    puts
                 addi    a0, s2, -18
                 call    print_n
 
-5:              la      a0, newline
+6:              la      a0, newline
                 call    puts
-
-                # call get_used
-                mv      a0, s0
-                li      t0, 9
-                mul     t1, s2, t0
-                add     a1, s1, t1
-                call    get_used
-                mv      s3, a0
-
-                la      a0, get_used_msg
+                la      a0, test_key_msg
                 call    puts
                 mv      a0, s3
                 call    print_n
@@ -97,34 +94,34 @@ _start:
                 la      a0, the_set_msg_2
                 call    puts
 
-                # call clear_used
+                # call gather_set
                 mv      a0, s0
                 li      t0, 9
                 mul     t1, s2, t0
                 add     a1, s1, t1
                 mv      a2, s3
-                la      a4, clear_used
+                la      a4, gather_set
                 call    call_function
-                mv      s3, a0
+                mv      s4, a0
 
                 la      a0, return_val_msg
                 call    puts
-                mv      a0, s3
+                mv      a0, s4
                 call    print_n
-                la      a0, newline
+                la      a0, the_set_msg_1
+                call    puts
+                mv      a0, s4
+                call    print_set
+                la      a0, the_set_msg_2
                 call    puts
 
-                # print the updated board
-                la      a0, new_board_msg
-                call    puts
-                mv      a0, s0
-                call    print_board
-
-                # next i
+                # next
                 addi    s2, s2, 11
                 li      t0, 27
                 rem     s2, s2, t0
-                bnez    s2, 2b
+                addi    s3, s3, 23
+                li      t0, 1023
+                blt     s3, t0, 3b
 
                 # clean up stack
                 addi    sp, sp, 256

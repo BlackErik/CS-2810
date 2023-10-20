@@ -183,13 +183,13 @@ There are 1s in columns 4, 5, and 7, so the task is to gather the
 union of the pencil marks for cells 4, 5, and 7. Here is the diagram
 again with all cells blanked out except for 4, 5, and 7:
 
-    index                               4       5               7        
+    index                               4       5               7
     +-------+-------+-------+-------+-------+-------+-------+-------+-------+
     |       |       |       |       | 1 . . | . . . |       | 1 . . |       |
     |       |       |       |       | . . 6 | . . 6 |       | . . 6 |       |
     |       |       |       |       | . . . | . . 9 |       | . . 9 |       |
     +-------+-------+-------+-------+-------+-------+-------+-------+-------+
-    value                               66     576             578        
+    value                               66     576             578
 
 Note that 66 is binary 1000010, 576 is binary 1001000000, and 578 is
 binary 1001000010.
