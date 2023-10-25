@@ -1,50 +1,54 @@
-<html><head></head><body><h2>Clear some pencil marks from other cells</h2>
+<html><head></head><body><h2>Calculate naked sets for a single group</h2>
 
-<p>This step has a similar structure to the previous one. Instead of
-gathering a set of pencil marks that are used by a selected group of
-cells, this step crosses off a set of pencil marks from a selected
-group of cells. You will implement the function:</p>
+<p>In this step you will compute naked sets for a single group (a row,
+column, or box) using the functions you wrote in earlier steps:</p>
 
-<pre><code>clear_others(board, group, key, set) -&gt;
-   0: nothing changed
-   1: something changed
+<pre><code>single_pass(board, group) -&gt;
+    0: nothing changed
+    1: something changed
 </code></pre>
 
-<p>in the file <code>naked_sets.s</code>.</p>
+<p>The challenge in this step is to identify every possible subset of
+size <em>n</em> from 1 to 8 (a subset of size 0 is empty, and a subset of
+size 9 would just be all of the cells in the group and there would
+be no cells left to optimize).</p>
 
-<p>As in the previous step, <code>board</code> contains the address of the entire
-board and <code>group</code> is an array of nine index values representing a
-single group on the board. Similar to the previous step, <code>key</code>
-identifies some of the cells in the list. However, this time the
-<em>zeros</em> identify the cells of interest, while the <em>ones</em> identify
-the cells to ignore.</p>
+<p>There is a nice trick to enumerating all possible subsets of every
+size: count using a binary number. Consider 4-bit binary numbers.
+There are 14 possible values if we just count from 1 to 14 in
+binary:</p>
 
-<p><code>used</code> contains a set of pencil marks that should be crossed off in
-the identified cells, i.e., the ones whose positions in <code>key</code> are
-marked by zeros.</p>
-
-<p>Consider this pseudcode and compare it with the previous step:</p>
-
-<pre><code>clear_others(board, group, key, set)
-    changed = 0
-    notset = ~set (flip all the bits)
-    for index = 0; index &lt; 9; index++
-        if key &amp; (1&lt;&lt;index) == 0
-            board_index = group[index]
-            elt = board[board_index]
-            new_elt = elt &amp; notset
-            if elt != new_elt
-                board[board_index] = new_elt
-                changed = 1
-    return changed
+<pre><code>0001, 0010, 0011, 0100, 0101, 0110, 0111,
+1000, 1001, 1010, 1011, 1100, 1101, 1110
 </code></pre>
 
-<p>To clear a set of bits we flip the bits in the set and the AND the
-result with the board element (similar to a previous step).</p>
+<p>If you consider the 1s as identifying positions to include and 0s as
+identifying positions to ignore, this list contains every possible
+set of <em>n</em> values for every possible value of <em>n</em> from 1 to 3. Every
+value with a single bit set is included, every combination of two
+bits set is includes, and every combination of three bits is
+included, with no duplicates. After all, counting enumerates every
+possible bit pattern in the given range.</p>
 
-<p>Where the previous step collected all pencil marks from a set of
-cells, this step crosses off pencils marks from the complementary
-set of cells. It must also return 1 to indicate that anything
-actually changed, or 0 to indicate that the operation did not change
-anything.</p>
+<p>We can extend this to 9-bit values by counting from 1 to 510
+inclusive (511 would have all 9 bits set). This will give us every
+possible bit pattern with between 1 and 8 bits set.</p>
+
+<p>The <code>single_pass</code> function should iterate over those 510 possible
+key values (counting from 1 to 510) and try to identify a naked
+set for each one. For each key:</p>
+
+<ul>
+<li>Call <code>count_bits</code> on the key to see how big the subset is</li>
+<li>Call <code>gather_set</code> to gather the candidates present in the pencil
+marks for those cells</li>
+<li>Call <code>count_bits</code> on the set that you gathered to see the
+combined number of candidate values used by that subset</li>
+<li>If the size of the subset matches the size of the candidate set,
+you have found a naked set of that size, so call <code>clear_others</code>
+to cross those values off any other cells</li>
+</ul>
+
+<p>Track if any changes were made (as reported by calls to
+<code>clear_others</code>) and return that value when finished.</p>
 </body></html>

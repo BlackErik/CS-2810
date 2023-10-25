@@ -42,7 +42,43 @@ gather_set:
 #    0: nothing changed
 #    1: something changed
 clear_others:
-                ret
+
+		# a0	board
+		# a1	group
+		# a2	key
+		# a3 	set
+		# a4 	changed
+		# a5    index
+		# a6	element
+		li	a4, 0 		# changed = 0
+		not	a3, a3		# notset = ~set
+
+		
+		li 	a5, 0		# index = 0
+
+		j 	1f
+3:		addi 	a5, a5, 1
+
+1:		li	t0, 9		
+		bge	a5, t0, 2f	# if index >= 9, j2f
+		li	t0, 1		# t0 = 1
+		sll	t1, t0, a5	# (1<<index)
+		and	a6, a2, t1	# key & (1<<index)
+		bnez	a6, 3b
+		add 	t3, a1, a5  # group_element_address = group + group_index
+                lb 	t2, (t3)     # board_index = lb( group_element_address )
+                slli 	t3, t2, 1  # scaled_board_index = board_index << 1
+                add 	t4, a0, t3  # board_element_address = board + scaled_board_index
+                lh 	a6, (t4)     # element = lh( board_element_address )
+		
+		and	a7, a6, a3
+		beq	a6, a7, 3b
+		sh	a7, (t4)
+		li	a4, 1
+		j	3b
+		
+2:		mv	a0, a4	
+		ret
 
 # single_pass(board, group) ->
 #   0: nothing change

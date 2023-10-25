@@ -3,15 +3,12 @@
 
                 .data
 msg_pencil:     .asciz  "\nBoard with up-to-date pencil marks:\n"
-test_row_msg:   .asciz  "\nTesting clear_others on row "
-test_col_msg:   .asciz  "\nTesting clear_others on column "
-test_group_msg: .asciz  "\nTesting clear_others on 3x3 group "
-test_key_msg:   .asciz  "Testing with key "
-the_set_msg_1:  .asciz  " (the set "
-the_set_msg_2:  .asciz  ")\n"
+test_row_msg:   .asciz  "\nTesting single_pass on row "
+test_col_msg:   .asciz  "\nTesting single_pass on column "
+test_group_msg: .asciz  "\nTesting single_pass on 3x3 group "
+return_val_msg: .asciz  "The return value is: "
 newline:        .asciz  "\n"
-return_val_msg: .asciz  "Return value from gather_set is "
-new_board_msg:  .asciz  "After calling clear_others the board is:\n\n"
+new_board_msg:  .asciz  "After calling single_pass the board is:\n\n"
 
                 .text
 _start:
@@ -56,10 +53,9 @@ _start:
                 mv      a0, s0
                 call    print_board
 
-                # s2: group_i
-                # s3: key
+                # s2: i
+                # for i from [0, 27] step 11 mod 27
                 li      s2, 0
-                li      s3, 1
 
 3:              li      t0, 9
                 bge     s2, t0, 4f
@@ -84,46 +80,22 @@ _start:
 
 6:              la      a0, newline
                 call    puts
-                la      a0, test_key_msg
-                call    puts
-                mv      a0, s3
-                call    print_n
-                la      a0, the_set_msg_1
-                call    puts
-                mv      a0, s3
-                call    print_set
-                la      a0, the_set_msg_2
-                call    puts
 
-                # call gather_set
+                # call single_pass
                 mv      a0, s0
                 li      t0, 9
                 mul     t1, s2, t0
                 add     a1, s1, t1
-                mv      a2, s3
-                call    gather_set
+                la      a4, single_pass
+                call    call_function
                 mv      s4, a0
 
                 la      a0, return_val_msg
                 call    puts
                 mv      a0, s4
                 call    print_n
-                la      a0, the_set_msg_1
+                la      a0, newline
                 call    puts
-                mv      a0, s4
-                call    print_set
-                la      a0, the_set_msg_2
-                call    puts
-
-                # call clear_others
-                mv      a0, s0
-                li      t0, 9
-                mul     t1, s2, t0
-                add     a1, s1, t1
-                mv      a2, s3
-                mv      a3, s4
-                la      a4, clear_others
-                call    call_function
 
                 # print the updated board
                 la      a0, new_board_msg
@@ -135,9 +107,7 @@ _start:
                 addi    s2, s2, 11
                 li      t0, 27
                 rem     s2, s2, t0
-                addi    s3, s3, 23
-                li      t0, 1024
-                blt     s3, t0, 3b
+                bnez    s2, 3b
 
                 # clean up stack
                 addi    sp, sp, 256

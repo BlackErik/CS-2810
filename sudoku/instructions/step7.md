@@ -20,7 +20,7 @@ binary:
 
     0001, 0010, 0011, 0100, 0101, 0110, 0111,
     1000, 1001, 1010, 1011, 1100, 1101, 1110
- 
+
 If you consider the 1s as identifying positions to include and 0s as
 identifying positions to ignore, this list contains every possible
 set of *n* values for every possible value of *n* from 1 to 3. Every
