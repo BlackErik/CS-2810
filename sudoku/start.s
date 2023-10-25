@@ -3,14 +3,15 @@
 
                 .data
 msg_pencil:     .asciz  "\nBoard with up-to-date pencil marks:\n"
-test_row_msg:   .asciz  "\nTesting gather_set on row "
-test_col_msg:   .asciz  "\nTesting gather_set on column "
-test_group_msg: .asciz  "\nTesting gather_set on 3x3 group "
+test_row_msg:   .asciz  "\nTesting clear_others on row "
+test_col_msg:   .asciz  "\nTesting clear_others on column "
+test_group_msg: .asciz  "\nTesting clear_others on 3x3 group "
 test_key_msg:   .asciz  "Testing with key "
 the_set_msg_1:  .asciz  " (the set "
 the_set_msg_2:  .asciz  ")\n"
 newline:        .asciz  "\n"
 return_val_msg: .asciz  "Return value from gather_set is "
+new_board_msg:  .asciz  "After calling clear_others the board is:\n\n"
 
                 .text
 _start:
@@ -46,7 +47,7 @@ _start:
                 mv      a1, s1
                 call    pencil_marks
 
-                # keep repeating until no changes made
+                # repeat until no changes made
                 bnez    a0, 2b
 
                 # print the board
@@ -100,8 +101,7 @@ _start:
                 mul     t1, s2, t0
                 add     a1, s1, t1
                 mv      a2, s3
-                la      a4, gather_set
-                call    call_function
+                call    gather_set
                 mv      s4, a0
 
                 la      a0, return_val_msg
@@ -115,12 +115,28 @@ _start:
                 la      a0, the_set_msg_2
                 call    puts
 
+                # call clear_others
+                mv      a0, s0
+                li      t0, 9
+                mul     t1, s2, t0
+                add     a1, s1, t1
+                mv      a2, s3
+                mv      a3, s4
+                la      a4, clear_others
+                call    call_function
+
+                # print the updated board
+                la      a0, new_board_msg
+                call    puts
+                mv      a0, s0
+                call    print_board
+
                 # next
                 addi    s2, s2, 11
                 li      t0, 27
                 rem     s2, s2, t0
                 addi    s3, s3, 23
-                li      t0, 1023
+                li      t0, 1024
                 blt     s3, t0, 3b
 
                 # clean up stack

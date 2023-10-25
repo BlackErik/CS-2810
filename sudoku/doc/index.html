@@ -1,237 +1,50 @@
-<html><head></head><body><h1>Naked sets</h1>
+<html><head></head><body><h2>Clear some pencil marks from other cells</h2>
 
-<p>The next five steps are devoted to implementing a puzzle solving
-technique called <em>naked sets</em>. Consider this 3×3 box:</p>
+<p>This step has a similar structure to the previous one. Instead of
+gathering a set of pencil marks that are used by a selected group of
+cells, this step crosses off a set of pencil marks from a selected
+group of cells. You will implement the function:</p>
 
-<pre><code>+-----------------------+
-| 1 . . | . 2 . | 1 2 . |
-| . . . | . . . | . . . |
-| . . 9 | . 8 9 | 7 8 . |
-| - - - + - - - + - - - |
-|       | . 2 . | 1 2 . |
-|   4   | . . . | . . . |
-|       | . . 9 | . . . |
-| - - - + - - - + - - - |
-|       | . 2 . |       |
-|   3   | . 5 . |   6   |
-|       | . . 9 |       |
-+-----------------------+
+<pre><code>clear_others(board, group, key, set) -&gt;
+   0: nothing changed
+   1: something changed
 </code></pre>
 
-<p>Three of the squares (numbers 0, 4, and 5 within the box) have
-pencil marks for {1,9}, {2,9}, and {1,2}, respectively. Taken as a
-group, these three squares must “use up” the three values {1,2,9}.
-There is not enough information to know which of the three squares
-is 1, which is 2, and which is 9, but we can infer that no other
-squares in the box could possibly be one of those three values.
-Crossing them off the remaining squares we are left with:</p>
+<p>in the file <code>naked_sets.s</code>.</p>
 
-<pre><code>+-----------------------+
-| 1 . . | . . . | . . . |
-| . . . | . . . | . . . |
-| . . 9 | . 8 . | 7 8 . |
-| - - - + - - - + - - - |
-|       | . 2 . | 1 2 . |
-|   4   | . . . | . . . |
-|       | . . 9 | . . . |
-| - - - + - - - + - - - |
-|       | . . . |       |
-|   3   | . 5 . |   6   |
-|       | . . . |       |
-+-----------------------+
-</code></pre>
+<p>As in the previous step, <code>board</code> contains the address of the entire
+board and <code>group</code> is an array of nine index values representing a
+single group on the board. Similar to the previous step, <code>key</code>
+identifies some of the cells in the list. However, this time the
+<em>zeros</em> identify the cells of interest, while the <em>ones</em> identify
+the cells to ignore.</p>
 
-<p>which effectively solved two more squares:</p>
+<p><code>used</code> contains a set of pencil marks that should be crossed off in
+the identified cells, i.e., the ones whose positions in <code>key</code> are
+marked by zeros.</p>
 
-<pre><code>+-----------------------+
-| 1 . . |       | . . . |
-| . . . |   8   | . . . |
-| . . 9 |       | 7 8 . |
-| - - - + - - - + - - - |
-|       | . 2 . | 1 2 . |
-|   4   | . . . | . . . |
-|       | . . 9 | . . . |
-| - - - + - - - + - - - |
-|       |       |       |
-|   3   |   5   |   6   |
-|       |       |       |
-+-----------------------+
-</code></pre>
+<p>Consider this pseudcode and compare it with the previous step:</p>
 
-<p>This process generalizes as follows: within a single group, if there
-are <em>n</em> squares whose combined pencil marks include exactly <em>n</em>
-candidate values, then those <em>n</em> values can be crossed off from any
-other square in the group. So two squares that share the same two
-pencil mark values, four squares that share the same four pencil
-mark values, etc.</p>
-
-<p>There are some interesting special cases. Consider the example above
-where a square was solved with the value 8. Note that the square
-next to it has {7,8} as its pencil marks, but has the solved square
-with 8 next to it. If we apply another round of naked sets
-detection, we will find a naked set of size one with the square
-containing the 8, leading us to cross 8 off all other pencil mark
-lists, which in turn solves another square:</p>
-
-<pre><code>+-----------------------+
-| 1 . . |       |       |
-| . . . |   8   |   7   |
-| . . 9 |       |       |
-| - - - + - - - + - - - |
-|       | . 2 . | 1 2 . |
-|   4   | . . . | . . . |
-|       | . . 9 | . . . |
-| - - - + - - - + - - - |
-|       |       |       |
-|   3   |   5   |   6   |
-|       |       |       |
-+-----------------------+
-</code></pre>
-
-<p>At this point there are no further naked sets to exploit in this
-group, though this may have created new naked sets in the rows and
-columns that intersect this box.</p>
-
-<p>Here is another example using a row:</p>
-
-<pre><code>+-------+-------+-------+-------+-------+-------+-------+-------+-------+
-| . . . | . . . |       | . . 3 |       |       | . . . | . . 3 |       |
-| 4 . . | . 5 . |   2   | . 5 . |   6   |   1   | 4 . . | 4 5 . |   7   |
-| . . 9 | . . 9 |       | . 8 9 |       |       | . . 9 | . . 9 |       |
-+-------+-------+-------+-------+-------+-------+-------+-------+-------+
-</code></pre>
-
-<p>In this row there are two squares (0 and 6) that between them can
-only be marked with 4 and 9. This implies that one of those squares
-must be a 4 and the other 9 (though we do not know which), but those
-two values will be “used up” in those two squares, so 4 and 9 can be
-crossed off in all the other squares, yielding:</p>
-
-<pre><code>+-------+-------+-------+-------+-------+-------+-------+-------+-------+
-| . . . |       |       | . . 3 |       |       | . . . | . . 3 |       |
-| 4 . . |   5   |   2   | . 5 . |   6   |   1   | 4 . . | . 5 . |   7   |
-| . . 9 |       |       | . 8 . |       |       | . . 9 | . . . |       |
-+-------+-------+-------+-------+-------+-------+-------+-------+-------+
-</code></pre>
-
-<p>This in turn exposes a naked set of size 1 in cell 1 (the number 5).
-Once we identify the naked set of size one with the 5, we eliminate
-5s from all other squares giving:</p>
-
-<pre><code>+-------+-------+-------+-------+-------+-------+-------+-------+-------+
-| . . . |       |       | . . 3 |       |       | . . . |       |       |
-| 4 . . |   5   |   2   | . . . |   6   |   1   | 4 . . |   3   |   7   |
-| . . 9 |       |       | . 8 . |       |       | . . 9 |       |       |
-+-------+-------+-------+-------+-------+-------+-------+-------+-------+
-</code></pre>
-
-<p>This in turn exposes a new naked set of size one in square 7 (the
-number 3). Crossing off 3s in other cells yields:</p>
-
-<pre><code>+-------+-------+-------+-------+-------+-------+-------+-------+-------+
-| . . . |       |       |       |       |       | . . . |       |       |
-| 4 . . |   5   |   2   |   8   |   6   |   1   | 4 . . |   3   |   7   |
-| . . 9 |       |       |       |       |       | . . 9 |       |       |
-+-------+-------+-------+-------+-------+-------+-------+-------+-------+
-</code></pre>
-
-<p>At this point there are no more naked sets that can be exploited.
-This example only showed naked sets of small sizes, but any size is
-possible. The requirement is just that there be <em>n</em> cells with a
-combined total of <em>n</em> possible values.</p>
-
-<h2>Gather the union of some cells</h2>
-
-<p>Consider the following row of Sudoku cells:</p>
-
-<pre><code>index 0     1       2       3       4       5       6       7       8
-+-------+-------+-------+-------+-------+-------+-------+-------+-------+
-|       | . . . | . 2 . |       | 1 . . | . . . | . . . | 1 . . | 1 . . |
-|   3   | . . 6 | . . 6 |   4   | . . 6 | . . 6 | . 5 6 | . . 6 | . . . |
-|       | 7 . . | . . . |       | . . . | . . 9 | 7 8 9 | . . 9 | . 8 . |
-+-------+-------+-------+-------+-------+-------+-------+-------+-------+
-value 8    192      68      16      66     576     992     578     258
-</code></pre>
-
-<p>Your task in this step is to union together the pencil marks in a
-specific set of cells. The function has the following signature:</p>
-
-<pre><code>gather_set(board, group, key) -&gt;
-    set of pencil marks for cells identified by key
-</code></pre>
-
-<p>and should be implemented in <code>naked_sets.s</code>.</p>
-
-<p>Each cell contains a set of bits indicating the values that could
-possibly be used to solve that cell. <code>gather_set</code> will gather the
-set of bits indicating the values that could possibly be used to
-solve a group of cells.</p>
-
-<p><code>board</code> is the address of the board (an array of 81 elements, each
-16 bits in size), and <code>group</code> is an array of 9 lookup table elements
-for the nine elements of the group (as in previous steps).</p>
-
-<p>The bits of <code>key</code> indicate which cells you should consider. For
-example, if <code>key</code> is the value 176, which is binary 010110000, then
-your task is to gather the union of all pencil marks at index
-locations 4, 5, and 7 (because bit numbers 4, 5, and 7 are set in
-the key). Those values are 66, 576, and 578, respectively,
-representing the pencil marks displayed in the diagram above.
-Unioning these pencil marks together (using the OR operation on the
-cell values) yields 578.</p>
-
-<p>To review those steps, here is the key of 176, with its bits
-numbered:</p>
-
-<pre><code>876543210
-010110000
-</code></pre>
-
-<p>There are 1s in columns 4, 5, and 7, so the task is to gather the
-union of the pencil marks for cells 4, 5, and 7. Here is the diagram
-again with all cells blanked out except for 4, 5, and 7:</p>
-
-<pre><code>index                               4       5               7        
-+-------+-------+-------+-------+-------+-------+-------+-------+-------+
-|       |       |       |       | 1 . . | . . . |       | 1 . . |       |
-|       |       |       |       | . . 6 | . . 6 |       | . . 6 |       |
-|       |       |       |       | . . . | . . 9 |       | . . 9 |       |
-+-------+-------+-------+-------+-------+-------+-------+-------+-------+
-value                               66     576             578        
-</code></pre>
-
-<p>Note that 66 is binary 1000010, 576 is binary 1001000000, and 578 is
-binary 1001000010.</p>
-
-<p>Unioning these three cells together is an OR operation on those
-three values:</p>
-
-<pre><code>0001000010
-1001000000
-1001000010
-----------
-1001000010
-</code></pre>
-
-<p>giving 1001000010 which is 578 in decimal.</p>
-
-<p>Be sure you understand the task at hand before continuing. If you
-are uncertain, contact your instructor.</p>
-
-<p>To restate the problem, the task is to gather the union of some
-cells of a Sudoku row and return it. A key value has a bit set for
-each cell that should be gathered, and a bit clear for each cell
-that should be ignored.</p>
-
-<p>Here is pseudocode to accomplish this:</p>
-
-<pre><code>gather_set(board, group, key)
-    set = 0
+<pre><code>clear_others(board, group, key, set)
+    changed = 0
+    notset = ~set (flip all the bits)
     for index = 0; index &lt; 9; index++
-        if key &amp; (1&lt;&lt;index) != 0
+        if key &amp; (1&lt;&lt;index) == 0
             board_index = group[index]
             elt = board[board_index]
-            set = set | elt
-    return set
+            new_elt = elt &amp; notset
+            if elt != new_elt
+                board[board_index] = new_elt
+                changed = 1
+    return changed
 </code></pre>
+
+<p>To clear a set of bits we flip the bits in the set and the AND the
+result with the board element (similar to a previous step).</p>
+
+<p>Where the previous step collected all pencil marks from a set of
+cells, this step crosses off pencils marks from the complementary
+set of cells. It must also return 1 to indicate that anything
+actually changed, or 0 to indicate that the operation did not change
+anything.</p>
 </body></html>
