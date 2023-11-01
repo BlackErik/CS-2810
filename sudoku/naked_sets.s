@@ -148,4 +148,42 @@ single_pass:
 #   0: nothing changed
 #   1: something changed
 naked_sets:
+		
+		# a0 -> s0 board
+		# a1 -> s1 table
+		# s2  iterator
+		# s3  changed
+	
+		addi 	sp, sp, -48
+		sd	ra, 40(sp)
+		sd	s0, 32(sp)
+		sd	s1, 24(sp)
+		sd	s2, 16(sp)
+		sd	s3, 8(sp)
+		
+		mv 	s0, a0
+		mv	s1, a1
+		li	s2, 0
+		li	s3, 0
+
+1:		li	t0, 27*9
+		bge	s2, t0, 2f
+		mv	a0, s0
+		add	a1, s1, s2
+		call	single_pass
+		beqz	a0, 3f
+		li	s3, 1
+3:		addi	s2, s2, 9
+		j	1b
+		
+		
+		
+		
+2:		mv	a0, s3
+		ld	ra, 40(sp)
+		ld	s0, 32(sp)
+		ld	s1, 24(sp)
+		ld	s2, 16(sp)
+		ld	s3, 8(sp)
+		addi 	sp, sp, 48
                 ret

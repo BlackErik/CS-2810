@@ -1,19 +1,65 @@
-<html><head></head><body><h2>Naked sets</h2>
+<html><head></head><body><h1>Check board</h1>
 
-<p>In this step you will calculate naked sets for the entire board:</p>
+<p>After naked sets calculations are complete, we need to be able to
+evaluate a Sudoku board. We are interested in three possible states:</p>
 
-<pre><code>naked_sets(board, table) -&gt;
-    0: nothing changed
-    1: something changed
+<ol>
+<li>The board is fully solved</li>
+<li>The board is unsolvable (there are cells with no pencil marks left)</li>
+<li>The board is unsolved, but may still be solvable.</li>
+</ol>
+
+<p>In the third case, we will continue the solving process (in the next
+step) by making a guess on one of the unsolved cells and trying to
+solve the board that results. To maximize our chances of guessing
+correctly, we will choose the cell with the fewest remaining pencil
+marks, calling it the <em>most constrained</em> cell.</p>
+
+<p>Write the function:</p>
+
+<pre><code>check_board(board) -&gt;
+    -1: board is unsolvable
+    0-80: position of most-constrained cell
+    81: board is solved
 </code></pre>
 
-<p>Iterate over the 27 groups of the board (similar to previous steps)
-and call <code>single_pass</code> on each one.</p>
+<p>in the file <code>check_board.s</code>. It should scan the entire board and
+count the number of pencil marks in each cell. If all of the cells
+are solved (they each have exactly one pencil mark value), then
+return 81. If even a single cell has zero pencil marks, return -1.
+In the remaining case, return the index of the unsolved cell with
+the fewest pencil marks. In the event of a tie, return the lowest
+index number of a cell with the fewest pencil marks.</p>
 
-<p>You should return 1 if any changes were made (as reported by the
-calls to <code>single_pass</code>) and 0 otherwise.</p>
+<p>Note that this can be implemented as a leaf function (if you write a
+loop to count the pencil marks) or you can write it as a non-leaf
+function and call your <code>count_bits</code> function.</p>
 
-<p>Note that calculating naked sets may reveal additional naked sets,
-so the code that calls it (in <code>solve.s</code>) will call it repeatedly
-until no more changes are reported.</p>
+<p>This function examines all positions of the board, but it does not
+care about rows, columns, and boxes, so there is no need to use the
+lookup table. You can just loop over the 81 positions of the board
+in order.</p>
+
+<p>I suggest the following approach:</p>
+
+<ul>
+<li><p>Start with two variables, <code>most_constrained_index</code> and
+<code>most_constrained_count</code>. Set the initial value of
+<code>most_constrained_count</code> to 10 (a number larger than the highest
+possible number of pencil marks), and set the initial value of
+<code>most_constrained_index</code> to 81.</p></li>
+
+<li><p>Examine each cell in order and count the pencil marks. If you
+find zero, return -1 immediately. If you find one, continue the
+loop. If you find more than one, check if this is the new winner
+(the number is less than <code>most_constrained_count</code>). If it is,
+record the index of current index in <code>most_constrained_index</code>
+and the pencil mark count in <code>most_constrained_count</code>.</p></li>
+
+<li><p>If you reach the end of the loop, return
+<code>most_constrained_index</code>. Note that it will still be 81 (its
+initial value) if there were no unsolved squares, and it will be
+the index of the first cell with the lowest pencil mark count
+otherwise.</p></li>
+</ul>
 </body></html>
