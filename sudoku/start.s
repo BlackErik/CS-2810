@@ -3,19 +3,13 @@
 
                 .data
 msg_pencil:     .asciz  "\nBoard with up-to-date pencil marks:\n"
-test_row_msg:   .asciz  "\nTesting single_pass on row "
-test_col_msg:   .asciz  "\nTesting single_pass on column "
-test_group_msg: .asciz  "\nTesting single_pass on 3x3 group "
-return_val_msg: .asciz  "The return value is: "
-newline:        .asciz  "\n"
-new_board_msg:  .asciz  "After calling single_pass the board is:\n\n"
 
                 .text
 _start:
-				.option	push
-				.option norelax
-				la		gp, __global_pointer$
-				.option pop
+                .option push
+                .option norelax
+                la      gp, __global_pointer$
+                .option pop
 
                 # s0: board
                 # s1: table
@@ -44,7 +38,7 @@ _start:
                 mv      a1, s1
                 call    pencil_marks
 
-                # repeat until no changes made
+                # repeat until no change
                 bnez    a0, 2b
 
                 # print the board
@@ -53,61 +47,10 @@ _start:
                 mv      a0, s0
                 call    print_board
 
-                # s2: i
-                # for i from [0, 27] step 11 mod 27
-                li      s2, 0
-
-3:              li      t0, 9
-                bge     s2, t0, 4f
-                la      a0, test_row_msg
-                call    puts
-                mv      a0, s2
-                call    print_n
-                j       6f
-
-4:              li      t0, 18
-                bge     s2, t0, 5f
-                la      a0, test_col_msg
-                call    puts
-                addi    a0, s2, -9
-                call    print_n
-                j       6f
-
-5:              la      a0, test_group_msg
-                call    puts
-                addi    a0, s2, -18
-                call    print_n
-
-6:              la      a0, newline
-                call    puts
-
-                # call single_pass
+                # call the main solver
                 mv      a0, s0
-                li      t0, 9
-                mul     t1, s2, t0
-                add     a1, s1, t1
-                la      a4, single_pass
-                call    call_function
-                mv      s4, a0
-
-                la      a0, return_val_msg
-                call    puts
-                mv      a0, s4
-                call    print_n
-                la      a0, newline
-                call    puts
-
-                # print the updated board
-                la      a0, new_board_msg
-                call    puts
-                mv      a0, s0
-                call    print_board
-
-                # next
-                addi    s2, s2, 11
-                li      t0, 27
-                rem     s2, s2, t0
-                bnez    s2, 3b
+                mv      a1, s1
+                call    solve
 
                 # clean up stack
                 addi    sp, sp, 256

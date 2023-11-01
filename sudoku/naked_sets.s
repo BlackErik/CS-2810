@@ -84,6 +84,64 @@ clear_others:
 #   0: nothing change
 #   1: something changed
 single_pass:
+		# a0->s0 board
+		# a1->s1 group
+		# s2	key
+		# s3	changed
+		# s4	candidate set
+		# s5	new set
+
+		addi 	sp, sp, -56
+		sd	ra, 48(sp)
+		sd	s0, 40(sp)
+		sd	s1, 32(sp)
+		sd	s2, 24(sp)
+		sd	s3, 16(sp)
+		sd	s4, 8(sp)
+		sd	s5, 0(sp)
+
+		mv	s0, a0
+		mv	s1, a1
+		li	s2, 1
+		li	s3, 0
+
+1:		li 	t0, 510
+		bge	s2, t0, 2f
+
+		mv 	a0, s2
+		call	count_bits
+		mv	s4, a0
+
+		mv	a0, s0
+		mv	a1, s1
+		mv	a2, s2
+		call	gather_set
+		mv	s5, a0
+		call	count_bits
+		
+		bne	a0, s4, 3f
+		mv	a0, s0
+		mv	a1, s1
+		mv	a2, s2
+		mv	a3, s5
+
+		call	clear_others		
+		beqz	a0, 3f
+		li	s3, 1
+3:		addi	s2, s2, 1
+		j 	1b
+		
+
+2:		mv	a0, s3
+		ld	ra, 48(sp)
+		ld	s0, 40(sp)
+		ld	s1, 32(sp)
+		ld	s2, 24(sp)
+		ld	s3, 16(sp)
+		ld	s4, 8(sp)
+		ld	s5, 0(sp)
+		addi 	sp, sp, 56
+
                 ret
 
 # naked_sets(board, table) ->
