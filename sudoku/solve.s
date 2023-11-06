@@ -1,28 +1,43 @@
                 .global solve
-                .equ    sys_exit, 93
 
                 .data
 msg_naked:      .asciz  "\nBoard after solving naked sets:\n"
-msg_unsolvable: .asciz  "\nBoard is unsolvable\n"
-msg_solved:     .asciz  "\nBoard is solved\n"
-msg_most_const: .asciz  "\nMost constrained cell is at position ("
-msg_most_mid:   .asciz  ", "
-msg_most_end:   .asciz ")\n"
+msg_back:       .asciz  "\nBoard is unsolvable. Backtracking to change previous guess.\n"
+msg_guess:      .asciz  "\nPreparing to guess at position ("
+msg_guess_mid:  .asciz  ", "
+msg_guess_end:  .asciz  ")\n"
+msg_badguess:   .asciz  "\nRan out of guesses. Backtracking.\n"
 
                 .text
-# solve(board, table) -> 0
+# solve(board, table) ->
+#     0: solved successfully
+#     1: board was unsolvable
 solve:
                 # prelude
-                addi    sp, sp, -32
-                sd      ra, 24(sp)
-                sd      s0, 16(sp)
-                sd      s1, 8(sp)
-                sd      s2, 0(sp)
+                addi    sp, sp, -48
+                sd      ra, 40(sp)
+                sd      s0, 32(sp)
+                sd      s1, 24(sp)
+                sd      s2, 16(sp)
+                sd      s3, 8(sp)
 
                 # s0: board
                 # s1: table
+                # s2: naked sets solver made a change
+                # s3: most constained cell
                 mv      s0, a0
                 mv      s1, a1
+                li      s2, 0
+
+                # call check_board
+                mv      a0, s0
+                call    check_board
+
+                # if the board is unsolvable, backtrack now
+                # otherwise continue on to naked sets even
+                # if no unsolved squares remain, in case
+                # the board is corrupted
+                bltz    a0, 2f
 
                 # call naked_sets
 1:              mv      a0, s0
@@ -38,45 +53,50 @@ solve:
 
                 # call check_board
                 mv      a0, s0
-                la      a4, check_board
-                call    call_function
+                call    check_board
+                bgez    a0, 3f
 
-                # save most-constrained cell in s2
-                mv      s2, a0
-
-                # bad board?
-                bgez    a0, 2f
-                la      a0, msg_unsolvable
+                # bad board
+2:              la      a0, msg_back
                 call    puts
-                j       4f
+
+                # return 1
+                li      a0, 1
+                j       5f
 
                 # solved?
-2:              li      t0, 81
-                blt     a0, t0, 3f
-                la      a0, msg_solved
-                call    puts
-                j       4f
+3:              li      t0, 81
+                blt     a0, t0, 4f
 
-                # print position of most-constrained cell
-3:              la      a0, msg_most_const
-                call    puts
-                li      t0, 9
-                rem     a0, s2, t0
-                call    print_n
-                la      a0, msg_most_mid
-                call    puts
-                li      t0, 9
-                div     a0, s2, t0
-                call    print_n
-                la      a0, msg_most_end
+                # return 0
+                li      a0, 0
+                j       5f
+
+                # copy most-constrained cell to s3
+4:              mv      s3, a0
+
+                # call guess
+                mv      a0, s0
+                mv      a1, s1
+                mv      a2, s3
+                la      a4, guess
+                call    call_function
+
+                # if it returned zero, we return zero
+                beqz    a0, 5f
+
+                # print backtracking message
+                la      a0, msg_badguess
                 call    puts
 
-4:              li      a0, 0
+                # return 1
+                li      a0, 1
 
                 # postlude
-                ld      ra, 24(sp)
-                ld      s0, 16(sp)
-                ld      s1, 8(sp)
-                ld      s2, 0(sp)
-                addi    sp, sp, 32
+5:              ld      ra, 40(sp)
+                ld      s0, 32(sp)
+                ld      s1, 24(sp)
+                ld      s2, 16(sp)
+                ld      s3, 8(sp)
+                addi    sp, sp, 48
                 ret

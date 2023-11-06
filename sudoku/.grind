@@ -3,7 +3,7 @@
     "problems": {
         "sudoku": {
             "id": 357,
-            "step": 9
+            "step": 10
         }
     }
 }
