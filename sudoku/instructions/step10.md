@@ -93,18 +93,56 @@ different register).
 Overall, the structure of this function should look like:
 
 *   Copy all 81 elements of the board to the backup board
+
+        for i = 0; i < 81; i++
+            temp = board[i]
+            backup[i] = temp
+
 *   Load the element from the board at `position`
+
+        elt = board[position]
+
 *   for guess in range [1, 9]:
+
     *   Check if the guess is viable (if the corresponding bit is
         set in the element)
+
+            mask = 1 << guess
+            if elt & mask != 0
+
     *   If so, print a message (see below), store that as a solved
         value to `position` on the original board (not the backup)
         and call `solve`
-    *   If `solve` reports the board as solve, return 0
+
+            puts(msg_guess_1)
+            print_n(position)
+            puts(msg_guess_2)
+            col = guess % 9
+            print_n(col)
+            puts(msg_guess_3)
+            row = guess / 9
+            print_n(row)
+            puts(msg_guess_4)
+
+            board[position] = mask
+            result = solve(board, table)
+
+    *   If `solve` reports the board as solved, return 0
+
+            if result == 0:
+                return 0
+
     *   Otherwise, copy all 81 elements from the backup to the
         original board to restore it to the pre-guess state
+
+            for i = 0; i < 81; i++
+                temp = backup[i]
+                board[i] = temp
+
 *   No solution was found after trying all possible guesses, so
     return 1
+
+        return 1
 
 Make sure that all return paths clean up the stack properly (adding
 176 to sp first to free up the backup board space, then proceeding
@@ -136,12 +174,17 @@ You can also use the following helper functions to print:
     it to the screen (also defined in `lib/print.s`).
 
 When you are about to make a guess, print the `msg_guess_1` string
-by loading its address into `a0`:
+by loading its address into `a0` and then calling `puts`:
 
-    la  a0, msg_guess_1
+    la      a0, msg_guess_1
+    call    puts
 
-and calling `puts`. Then call `print_n` with the guess value itself,
-then use `puts` to print `msg_guess_2`.
+Then call `print_n` with the guess value itself, then use `puts` to
+print `msg_guess_2`. To print an integer, put it in `a0` and call
+`print_n`, e.g.:
+
+    li      a0, 12345
+    call    print_n
 
 At this point you need to convert a board index value, a value in
 the range [0,81), into X and Y coordinates:

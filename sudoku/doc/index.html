@@ -96,22 +96,67 @@ different register).</p>
 <p>Overall, the structure of this function should look like:</p>
 
 <ul>
-<li>Copy all 81 elements of the board to the backup board</li>
-<li>Load the element from the board at <code>position</code></li>
-<li>for guess in range [1, 9]:
+<li><p>Copy all 81 elements of the board to the backup board</p>
+
+<pre><code>for i = 0; i &lt; 81; i++
+    temp = board[i]
+    backup[i] = temp
+</code></pre></li>
+
+<li><p>Load the element from the board at <code>position</code></p>
+
+<pre><code>elt = board[position]
+</code></pre></li>
+
+<li><p>for guess in range [1, 9]:</p>
 
 <ul>
-<li>Check if the guess is viable (if the corresponding bit is
-set in the element)</li>
-<li>If so, print a message (see below), store that as a solved
+<li><p>Check if the guess is viable (if the corresponding bit is
+set in the element)</p>
+
+<pre><code>mask = 1 &lt;&lt; guess
+if elt &amp; mask != 0
+</code></pre></li>
+
+<li><p>If so, print a message (see below), store that as a solved
 value to <code>position</code> on the original board (not the backup)
-and call <code>solve</code></li>
-<li>If <code>solve</code> reports the board as solve, return 0</li>
-<li>Otherwise, copy all 81 elements from the backup to the
-original board to restore it to the pre-guess state</li>
+and call <code>solve</code></p>
+
+<pre><code>puts(msg_guess_1)
+print_n(position)
+puts(msg_guess_2)
+col = guess % 9
+print_n(col)
+puts(msg_guess_3)
+row = guess / 9
+print_n(row)
+puts(msg_guess_4)
+
+
+board[position] = mask
+result = solve(board, table)
+</code></pre></li>
+
+<li><p>If <code>solve</code> reports the board as solved, return 0</p>
+
+<pre><code>if result == 0:
+    return 0
+</code></pre></li>
+
+<li><p>Otherwise, copy all 81 elements from the backup to the
+original board to restore it to the pre-guess state</p>
+
+<pre><code>for i = 0; i &lt; 81; i++
+    temp = backup[i]
+    board[i] = temp
+</code></pre></li>
 </ul></li>
-<li>No solution was found after trying all possible guesses, so
-return 1</li>
+
+<li><p>No solution was found after trying all possible guesses, so
+return 1</p>
+
+<pre><code>return 1
+</code></pre></li>
 </ul>
 
 <p>Make sure that all return paths clean up the stack properly (adding
@@ -146,13 +191,19 @@ it to the screen (also defined in <code>lib/print.s</code>).</li>
 </ul>
 
 <p>When you are about to make a guess, print the <code>msg_guess_1</code> string
-by loading its address into <code>a0</code>:</p>
+by loading its address into <code>a0</code> and then calling <code>puts</code>:</p>
 
-<pre><code>la  a0, msg_guess_1
+<pre><code>la      a0, msg_guess_1
+call    puts
 </code></pre>
 
-<p>and calling <code>puts</code>. Then call <code>print_n</code> with the guess value itself,
-then use <code>puts</code> to print <code>msg_guess_2</code>.</p>
+<p>Then call <code>print_n</code> with the guess value itself, then use <code>puts</code> to
+print <code>msg_guess_2</code>. To print an integer, put it in <code>a0</code> and call
+<code>print_n</code>, e.g.:</p>
+
+<pre><code>li      a0, 12345
+call    print_n
+</code></pre>
 
 <p>At this point you need to convert a board index value, a value in
 the range [0,81), into X and Y coordinates:</p>
